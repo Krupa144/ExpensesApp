@@ -1,138 +1,160 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ExpansesApp.Models; // Dodaj przestrzeń nazw dla modelu Expenses
+using ExpensesApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpensesApp.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace ExpansesApp.Controllers
+namespace ExpensesApp.Controllers
 {
     public class ExpensesController : Controller
     {
         private readonly ExpensesDBContext _context;
 
-        // Konstruktor z wstrzyknięciem zależności kontekstu bazy danych
         public ExpensesController(ExpensesDBContext context)
         {
             _context = context;
         }
 
-        // GET: Expenses
-        public async Task<IActionResult> Index()
+        // GET: Expenses/Index
+        public async Task<IActionResult> Index(int? categoryId)
         {
-            if (!_context.Expenses.Any()) // Sprawdzamy, czy tabela jest pusta
+            var categories = await _context.Categories.ToListAsync();
+            var expensesQuery = _context.Expenses.Include(e => e.Category).AsQueryable();
+
+            if (categoryId.HasValue)
             {
-                // Dodaj przykładowe dane, jeśli tabela jest pusta
-                _context.Expenses.Add(new Expenses { Name = "Sample Expense", Description = "Example description", Price = 100.00m });
-                await _context.SaveChangesAsync();
+                expensesQuery = expensesQuery.Where(e => e.CategoryId == categoryId);
             }
 
-            var expenses = await _context.Expenses.ToListAsync(); // Pobieramy wszystkie dane
-            return View(expenses);
+            var model = new ExpensesViewModel
+            {
+                Expenses = await expensesQuery.ToListAsync(),
+                Categories = categories,
+                SelectedCategoryId = categoryId
+            };
+
+            return View(model);
         }
 
-
         // GET: Expenses/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(); // Zwracamy widok do tworzenia nowego elementu
+            ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name");
+            return View();
         }
 
         // POST: Expenses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Expenses expenses)
+        public async Task<IActionResult> Create(Expense expense)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(expenses);
+                if (expense.CategoryId == 0)
+                {
+                    ModelState.AddModelError("CategoryId", "Wybierz kategorię.");
+                    ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name");
+                    return View(expense);
+                }
+
+                _context.Expenses.Add(expense);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index)); // Przekierowanie na stronę główną po dodaniu
-            }
-            return View(expenses); // Jeśli model jest niepoprawny, wróć do widoku
-        }
-
-
-        // GET: Expenses/Edit/5
-        // Metoda do edytowania
-        public async Task<IActionResult> Edit(int id)
-        {
-            if (id == 0)
-            {
-                return NotFound();
-            }
-
-            var expenses = await _context.Expenses.FindAsync(id);
-            if (expenses == null)
-            {
-                return NotFound();
-            }
-
-            return View(expenses);
-        }
-
-        // Metoda do zapisywania zmian
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Expenses expenses)
-        {
-            if (id != expenses.ID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(expenses);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Expenses.Any(e => e.ID == expenses.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(expenses);
+
+            ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name");
+            return View(expense);
         }
 
-
-        // GET: Expenses/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        // GET: Expenses/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
-            var expenses = await _context.Expenses.FindAsync(id);
-            if (expenses == null)
+            var expense = await _context.Expenses.FindAsync(id);
+            if (expense == null)
             {
                 return NotFound();
             }
 
-            _context.Expenses.Remove(expenses);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index)); // Przekierowanie na stronę główną po usunięciu
+            ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name", expense.CategoryId);
+            return View(expense);
         }
 
+        // POST: Expenses/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Expense expense)
+        {
+            if (id != expense.ID)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Update(expense);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name", expense.CategoryId);
+            return View(expense);
+        }
 
         // POST: Expenses/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var expense = await _context.Expenses.FindAsync(id);
             if (expense != null)
             {
-                _context.Expenses.Remove(expense); // Usuwamy element z kontekstu
-                await _context.SaveChangesAsync(); // Zapisujemy zmiany w bazie danych
+                _context.Expenses.Remove(expense);
+                await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index)); // Przekierowanie do widoku Index po usunięciu
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Expenses/ManageCategories
+        public async Task<IActionResult> ManageCategories()
+        {
+            var categories = await _context.Categories.ToListAsync();
+            return View(categories);
+        }
+
+        // GET: Expenses/CreateCategory
+        public IActionResult CreateCategory()
+        {
+            return View();
+        }
+
+        // POST: Expenses/CreateCategory
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCategory(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Categories.Add(category);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(ManageCategories));
+            }
+
+            return View(category);
+        }
+
+        // POST: Expenses/DeleteCategory/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(ManageCategories));
         }
     }
 }

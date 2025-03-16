@@ -1,37 +1,34 @@
-using ExpensesApp.Models; // Poprawiona przestrzeñ nazw
 using Microsoft.EntityFrameworkCore;
+using ExpensesApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Dodaj us³ugi do kontenera.
-builder.Services.AddControllersWithViews();
-
-// Rejestracja kontekstu bazy danych z u¿yciem Entity Framework
+// Dodaj kontekst bazy danych
 builder.Services.AddDbContext<ExpensesDBContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Pobiera po³¹czenie z appsettings.json
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Jeœli korzystasz z Razor Pages, mo¿esz dodaæ:
-// builder.Services.AddRazorPages(); // Jeœli u¿ywasz Razor Pages
+// Dodaj us³ugi MVC
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Konfiguracja potoku ¿¹dañ HTTP.
+// Konfiguracja œrodowiska
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error"); // Obs³uga b³êdów w produkcji
-    app.UseHsts(); // W³¹cz HSTS (HTTP Strict Transport Security)
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
-app.UseHttpsRedirection(); // Przekierowanie na HTTPS
-app.UseStaticFiles(); // U¿ywaj plików statycznych (np. CSS, JS)
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-app.UseRouting(); // Umo¿liwia routowanie zapytañ
+app.UseRouting();
 
-app.UseAuthorization(); // U¿ywa autoryzacji (jeœli masz zabezpieczenia)
+app.UseAuthorization();
 
-// Definicja domyœlnej trasy
+// Konfiguracja tras
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Expenses}/{action=Index}/{id?}");
 
-app.Run(); // Uruchamia aplikacjê
+app.Run();

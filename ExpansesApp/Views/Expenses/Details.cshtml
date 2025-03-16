@@ -1,5 +1,4 @@
-﻿@model ExpensesApp.Models.Expenses
-
+﻿@model ExpensesApp.Models.Expense
 @{
     ViewData["Title"] = "Details";
 }
@@ -38,9 +37,7 @@
 </div>
 
 <div>
-    <!-- Poprawiona akcja Edit z przekazywaniem ID -->
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+    <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
 
-    <!-- Użycie asp-action do nawigacji -->
     <a asp-action="Index">Back to List</a>
 </div>

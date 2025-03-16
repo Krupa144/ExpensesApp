@@ -1,0 +1,28 @@
+﻿@model IEnumerable<ExpensesApp.Models.Category>
+
+<h1>Manage Categories</h1>
+
+<a href="@Url.Action("CreateCategory", "Expenses")" class="btn btn-primary">Add New Category</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>
+                    <form method="post" action="@Url.Action("DeleteCategory", "Expenses")">
+                        <input type="hidden" name="id" value="@category.ID" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

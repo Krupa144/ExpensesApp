@@ -1,30 +1,53 @@
-﻿@model IEnumerable<ExpensesApp.Models.Expenses>
+﻿@model ExpensesApp.Models.ExpensesViewModel
 
-<h2>Wydatki</h2>
+@{
+    ViewData["Title"] = "Expenses";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="get">
+    <label for="categoryId">Filter by Category:</label>
+    <select name="categoryId" id="categoryId" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        @foreach (var category in Model.Categories)
+        {
+            <option value="@category.ID" selected="@(Model.SelectedCategoryId.HasValue && Model.SelectedCategoryId.Value == category.ID)">
+                @category.Name
+            </option>
+        }
+    </select>
+</form>
 
 <table class="table">
     <thead>
         <tr>
-            <th>Nazwa</th>
-            <th>Opis</th>
-            <th>Cena</th>
-            <th>Akcje</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var expense in Model)
+        @foreach (var expense in Model.Expenses)
         {
             <tr>
                 <td>@expense.Name</td>
                 <td>@expense.Description</td>
-                <td>@expense.Price</td>
+                <td>@expense.Price.ToString("C")</td>
+                <td>@expense.Category?.Name</td> 
                 <td>
-                    <a href="@Url.Action("Edit", new { id = expense.ID })" class="btn btn-warning">Edytuj</a>
-                    <a href="@Url.Action("Delete", new { id = expense.ID })" class="btn btn-danger">Usuń</a>
+                    <a href="@Url.Action("Edit", "Expenses", new { id = expense.ID })" class="btn btn-warning">Edit</a>
+                    <form method="post" action="@Url.Action("Delete", "Expenses")" style="display:inline;">
+                        <input type="hidden" name="id" value="@expense.ID" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<a href="@Url.Action("Create")" class="btn btn-primary">Dodaj wydatek</a>
+<a href="@Url.Action("Create", "Expenses")" class="btn btn-primary">Add New Expense</a>
+<a href="@Url.Action("ManageCategories", "Expenses")" class="btn btn-secondary">Manage Categories</a>

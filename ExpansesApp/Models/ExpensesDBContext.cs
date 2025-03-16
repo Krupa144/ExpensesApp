@@ -1,15 +1,20 @@
-﻿using ExpensesApp.Models; // Poprawiona przestrzeń nazw
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace ExpensesApp.Models // Zmieniona na poprawną przestrzeń nazw
+namespace ExpensesApp.Models
 {
-    public class ExpensesDBContext : DbContext // Zmieniona nazwa klasy, aby pasowała do nazwy przestrzeni
+    public class ExpensesDBContext : DbContext
     {
-        public ExpensesDBContext(DbContextOptions<ExpensesDBContext> options)
-            : base(options)
-        {
-        }
+        public ExpensesDBContext(DbContextOptions<ExpensesDBContext> options) : base(options) { }
 
-        public DbSet<Expenses> Expenses { get; set; } // DbSet dla encji Expense (pierwsza litera w nazwie klasy powinna być wielka)
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Category> Categories { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.Category)
+                .WithMany(c => c.Expenses)
+                .HasForeignKey(e => e.CategoryId);
+        }
     }
 }

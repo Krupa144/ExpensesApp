@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using ExpansesApp.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpansesApp.Controllers
@@ -23,10 +21,7 @@ namespace ExpansesApp.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        // Jeœli nie potrzebujesz ErrorViewModel, usuñ ten fragment
+        // [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     }
 }
