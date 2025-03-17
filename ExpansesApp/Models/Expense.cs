@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExpensesApp.Models
@@ -16,8 +17,10 @@ namespace ExpensesApp.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
+        public DateTime DateAdded { get; set; } = DateTime.UtcNow; // Ustaw domyślną wartość na bieżącą datę
+
         public int CategoryId { get; set; }
 
-        public Category Category { get; set; } = new Category();
+        public Category? Category { get; set; }
     }
 }

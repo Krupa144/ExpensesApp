@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ExpensesApp.Models;
+using ExpensesApp.Repositories;
+using YourProjectNamespace.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,9 @@ builder.Services.AddDbContext<ExpensesDBContext>(options =>
 
 // Dodaj us³ugi MVC
 builder.Services.AddControllersWithViews();
+
+// Zarejestruj repozytorium
+builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 
 var app = builder.Build();
 
@@ -29,6 +34,6 @@ app.UseAuthorization();
 // Konfiguracja tras
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Expenses}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

@@ -21,7 +21,6 @@ namespace ExpansesApp.Controllers
             return View();
         }
 
-        // Jeœli nie potrzebujesz ErrorViewModel, usuñ ten fragment
-        // [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+       
     }
 }

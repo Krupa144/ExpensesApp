@@ -4,6 +4,7 @@ using ExpensesApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using YourProjectNamespace.Repositories;
 
 namespace ExpensesApp.Controllers
 {
@@ -58,6 +59,17 @@ namespace ExpensesApp.Controllers
                     return View(expense);
                 }
 
+                // Przypisz istniejącą kategorię do wydatku
+                var category = await _context.Categories.FindAsync(expense.CategoryId);
+                if (category == null)
+                {
+                    ModelState.AddModelError("CategoryId", "Wybrana kategoria nie istnieje.");
+                    ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name");
+                    return View(expense);
+                }
+
+                expense.Category = category;
+
                 _context.Expenses.Add(expense);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -92,6 +104,16 @@ namespace ExpensesApp.Controllers
 
             if (ModelState.IsValid)
             {
+                var category = await _context.Categories.FindAsync(expense.CategoryId);
+                if (category == null)
+                {
+                    ModelState.AddModelError("CategoryId", "Wybrana kategoria nie istnieje.");
+                    ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name", expense.CategoryId);
+                    return View(expense);
+                }
+
+                expense.Category = category;
+
                 _context.Update(expense);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -100,7 +122,6 @@ namespace ExpensesApp.Controllers
             ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name", expense.CategoryId);
             return View(expense);
         }
-
         // POST: Expenses/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -130,31 +151,66 @@ namespace ExpensesApp.Controllers
 
         // POST: Expenses/CreateCategory
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCategory(Category category)
+        public IActionResult CreateCategory(Category category)
         {
             if (ModelState.IsValid)
             {
                 _context.Categories.Add(category);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ManageCategories));
+                _context.SaveChanges();
+                return RedirectToAction("Index");
             }
-
             return View(category);
         }
 
         // POST: Expenses/DeleteCategory/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] // Zabezpieczenie przed CSRF
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            if (category == null)
             {
-                _context.Categories.Remove(category);
-                await _context.SaveChangesAsync();
+                return NotFound(); // Zwróć błąd 404, jeśli kategoria nie istnieje
             }
-            return RedirectToAction(nameof(ManageCategories));
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ManageCategories)); // Przekieruj do listy kategorii
         }
+        [ApiController]
+        [Route("api/[controller]")]
+        public class StatisticsController : ControllerBase
+        {
+            private readonly IExpenseRepository _expenseRepository;
+
+            public StatisticsController(IExpenseRepository expenseRepository)
+            {
+                _expenseRepository = expenseRepository;
+            }
+
+            [HttpGet("total")]
+            public IActionResult GetTotalExpenses()
+            {
+                var total = _expenseRepository.GetTotalExpenses();
+                return Ok(total);
+            }
+
+            [HttpGet("byCategory")]
+            public IActionResult GetExpensesByCategory()
+            {
+                var expensesByCategory = _expenseRepository.GetExpensesByCategory();
+                return Ok(expensesByCategory);
+            }
+
+            [HttpGet("averagePerDay")]
+            public IActionResult GetAverageExpensesPerDay()
+            {
+                var average = _expenseRepository.GetAverageExpensesPerDay();
+                return Ok(average);
+            }
+        }
+
+
     }
 }

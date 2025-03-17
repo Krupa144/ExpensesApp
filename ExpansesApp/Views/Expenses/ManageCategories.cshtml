@@ -1,5 +1,9 @@
 ﻿@model IEnumerable<ExpensesApp.Models.Category>
 
+@{
+    ViewData["Title"] = "Manage Categories";
+}
+
 <h1>Manage Categories</h1>
 
 <a href="@Url.Action("CreateCategory", "Expenses")" class="btn btn-primary">Add New Category</a>
@@ -19,6 +23,7 @@
                 <td>
                     <form method="post" action="@Url.Action("DeleteCategory", "Expenses")">
                         <input type="hidden" name="id" value="@category.ID" />
+                        @Html.AntiForgeryToken() <!-- Dodaj token anty-CSRF -->
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </td>
