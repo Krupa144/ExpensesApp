@@ -122,19 +122,24 @@ namespace ExpensesApp.Controllers
             ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name", expense.CategoryId);
             return View(expense);
         }
-        // POST: Expenses/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var expense = await _context.Expenses.FindAsync(id);
-            if (expense != null)
+            if (expense == null)
             {
-                _context.Expenses.Remove(expense);
-                await _context.SaveChangesAsync();
+                return NotFound(); // Jeśli nie znaleziono wydatku, zwróć błąd 404
             }
-            return RedirectToAction(nameof(Index));
+
+            _context.Expenses.Remove(expense);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index)); // Po usunięciu przekieruj do listy
         }
+
+
+
 
         // GET: Expenses/ManageCategories
         public async Task<IActionResult> ManageCategories()
@@ -164,19 +169,19 @@ namespace ExpensesApp.Controllers
 
         // POST: Expenses/DeleteCategory/5
         [HttpPost]
-        [ValidateAntiForgeryToken] // Zabezpieczenie przed CSRF
+        [ValidateAntiForgeryToken] 
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
-                return NotFound(); // Zwróć błąd 404, jeśli kategoria nie istnieje
+                return NotFound(); 
             }
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(ManageCategories)); // Przekieruj do listy kategorii
+            return RedirectToAction(nameof(ManageCategories)); 
         }
         [ApiController]
         [Route("api/[controller]")]

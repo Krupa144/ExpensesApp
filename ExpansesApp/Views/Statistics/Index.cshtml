@@ -1,0 +1,81 @@
+﻿@model ExpensesApp.Models.StatisticsViewModel
+
+@{
+    ViewData["Title"] = "Statistics";
+}
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Total Expenses</h3>
+        <p>@Model.TotalExpenses.ToString("C")</p>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Average Daily Expenses</h5>
+        <p>@Model.AverageExpensesPerDay.ToString("C")</p>
+    </div>
+</div>
+
+<h5>Expenses by Category</h5>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Total Expenses</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ExpensesByCategory)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Expenses by Category</h5>
+            <canvas id="expensesChart" width="400" height="150"></canvas>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById('expensesChart').getContext('2d');
+            var expensesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.ExpensesByCategory.Keys)), 
+                    datasets: [{
+                        label: 'Expenses by Category',
+                        data: @Html.Raw(Json.Serialize(Model.ExpensesByCategory.Values)), 
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

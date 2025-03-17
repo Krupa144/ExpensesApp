@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ExpensesApp.Repositories; // Poprawna przestrzeń nazw
+using ExpensesApp.Repositories;
 using System;
 using System.Collections.Generic;
+using ExpensesApp.Models;
 using YourProjectNamespace.Repositories;
 
-namespace ExpensesApp.Controllers // Poprawna przestrzeń nazw
+namespace ExpensesApp.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class StatisticsController : ControllerBase
+    public class StatisticsController : Controller
     {
         private readonly IExpenseRepository _expenseRepository;
 
@@ -17,45 +16,27 @@ namespace ExpensesApp.Controllers // Poprawna przestrzeń nazw
             _expenseRepository = expenseRepository;
         }
 
-        [HttpGet("total")]
-        public IActionResult GetTotalExpenses()
+        public IActionResult Index()
         {
             try
             {
-                var total = _expenseRepository.GetTotalExpenses();
-                return Ok(new { Success = true, TotalExpenses = total });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Success = false, Message = "Wystąpił błąd podczas obliczania sumy wydatków.", Error = ex.Message });
-            }
-        }
-
-        [HttpGet("byCategory")]
-        public IActionResult GetExpensesByCategory()
-        {
-            try
-            {
+                var totalExpenses = _expenseRepository.GetTotalExpenses();
                 var expensesByCategory = _expenseRepository.GetExpensesByCategory();
-                return Ok(new { Success = true, ExpensesByCategory = expensesByCategory });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Success = false, Message = "Wystąpił błąd podczas pobierania wydatków według kategorii.", Error = ex.Message });
-            }
-        }
+                var averageExpensesPerDay = _expenseRepository.GetAverageExpensesPerDay();
 
-        [HttpGet("averagePerDay")]
-        public IActionResult GetAverageExpensesPerDay()
-        {
-            try
-            {
-                var average = _expenseRepository.GetAverageExpensesPerDay();
-                return Ok(new { Success = true, AverageExpensesPerDay = average });
+                var model = new StatisticsViewModel
+                {
+                    TotalExpenses = totalExpenses,
+                    ExpensesByCategory = expensesByCategory,
+                    AverageExpensesPerDay = averageExpensesPerDay
+                };
+
+                return View(model); // Zwróć widok z danymi
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Success = false, Message = "Wystąpił błąd podczas obliczania średnich wydatków dziennych.", Error = ex.Message });
+                ViewBag.ErrorMessage = "Wystąpił błąd podczas pobierania statystyk: " + ex.Message;
+                return View("Error"); // Możesz utworzyć widok "Error" do wyświetlania błędów
             }
         }
     }
