@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using ExpensesApp.Models;
 
 namespace ExpensesApp.Models
 {
-    public class ExpensesDBContext : DbContext
+    public class ExpensesDBContext : IdentityDbContext<ApplicationUser>
     {
         public ExpensesDBContext(DbContextOptions<ExpensesDBContext> options) : base(options) { }
 
@@ -11,6 +13,8 @@ namespace ExpensesApp.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder); // Ważne dla Identity
+
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Category)
                 .WithMany(c => c.Expenses)

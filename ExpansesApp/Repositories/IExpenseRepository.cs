@@ -1,12 +1,18 @@
-﻿using System;
+﻿using ExpensesApp.Models;
 using System.Collections.Generic;
 
-namespace YourProjectNamespace.Repositories // Zmień na odpowiednią przestrzeń nazw
+namespace ExpensesApp.Repositories
 {
     public interface IExpenseRepository
     {
-        decimal GetTotalExpenses(); // Suma wszystkich wydatków
-        Dictionary<string, decimal> GetExpensesByCategory(); // Wydatki pogrupowane według kategorii
-        decimal GetAverageExpensesPerDay(); // Średnie wydatki dzienne
+        IEnumerable<Expense> GetAllExpenses();
+        Expense GetExpenseById(int id);
+        void AddExpense(Expense expense);
+        void UpdateExpense(Expense expense);
+        void DeleteExpense(int id);
+
+        // Dodaj brakujące metody
+        Dictionary<string, decimal> GetExpensesByCategory();
+        decimal GetAverageExpensesPerDay();
     }
 }

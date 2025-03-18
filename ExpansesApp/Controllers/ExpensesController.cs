@@ -4,7 +4,7 @@ using ExpensesApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using YourProjectNamespace.Repositories;
+using ExpensesApp.Repositories;
 
 namespace ExpensesApp.Controllers
 {
@@ -17,7 +17,6 @@ namespace ExpensesApp.Controllers
             _context = context;
         }
 
-        // GET: Expenses/Index
         public async Task<IActionResult> Index(int? categoryId)
         {
             var categories = await _context.Categories.ToListAsync();
@@ -38,14 +37,12 @@ namespace ExpensesApp.Controllers
             return View(model);
         }
 
-        // GET: Expenses/Create
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "ID", "Name");
             return View();
         }
 
-        // POST: Expenses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Expense expense)
@@ -59,7 +56,6 @@ namespace ExpensesApp.Controllers
                     return View(expense);
                 }
 
-                // Przypisz istniejącą kategorię do wydatku
                 var category = await _context.Categories.FindAsync(expense.CategoryId);
                 if (category == null)
                 {
@@ -79,7 +75,6 @@ namespace ExpensesApp.Controllers
             return View(expense);
         }
 
-        // GET: Expenses/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var expense = await _context.Expenses.FindAsync(id);
@@ -92,7 +87,6 @@ namespace ExpensesApp.Controllers
             return View(expense);
         }
 
-        // POST: Expenses/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Expense expense)
@@ -129,32 +123,29 @@ namespace ExpensesApp.Controllers
             var expense = await _context.Expenses.FindAsync(id);
             if (expense == null)
             {
-                return NotFound(); // Jeśli nie znaleziono wydatku, zwróć błąd 404
+                return NotFound(); 
             }
 
             _context.Expenses.Remove(expense);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index)); // Po usunięciu przekieruj do listy
+            return RedirectToAction(nameof(Index));
         }
 
 
 
 
-        // GET: Expenses/ManageCategories
         public async Task<IActionResult> ManageCategories()
         {
             var categories = await _context.Categories.ToListAsync();
             return View(categories);
         }
 
-        // GET: Expenses/CreateCategory
         public IActionResult CreateCategory()
         {
             return View();
         }
 
-        // POST: Expenses/CreateCategory
         [HttpPost]
         public IActionResult CreateCategory(Category category)
         {
@@ -167,7 +158,6 @@ namespace ExpensesApp.Controllers
             return View(category);
         }
 
-        // POST: Expenses/DeleteCategory/5
         [HttpPost]
         [ValidateAntiForgeryToken] 
         public async Task<IActionResult> DeleteCategory(int id)
@@ -197,7 +187,7 @@ namespace ExpensesApp.Controllers
             [HttpGet("total")]
             public IActionResult GetTotalExpenses()
             {
-                var total = _expenseRepository.GetTotalExpenses();
+                var total = _expenseRepository.GetAllExpenses();
                 return Ok(total);
             }
 

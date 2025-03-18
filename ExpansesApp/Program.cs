@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using ExpensesApp.Models;
 using ExpensesApp.Repositories;
-using YourProjectNamespace.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,15 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ExpensesDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Dodaj us�ugi MVC
+// Dodaj Identity
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<ExpensesDBContext>();
+
+
+
+// Dodaj obsługę kontrolerów MVC
 builder.Services.AddControllersWithViews();
 
-// Zarejestruj repozytorium
+// Zarejestruj IExpenseRepository
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 
 var app = builder.Build();
 
-// Konfiguracja �rodowiska
+// Konfiguracja middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -27,11 +33,16 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapRazorPages();  
+
 app.UseRouting();
 
+// Użyj uwierzytelniania i autoryzacji
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Konfiguracja tras
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

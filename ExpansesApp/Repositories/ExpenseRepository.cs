@@ -1,9 +1,6 @@
 ﻿using ExpensesApp.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using YourProjectNamespace.Repositories;
 
 namespace ExpensesApp.Repositories
 {
@@ -16,25 +13,55 @@ namespace ExpensesApp.Repositories
             _context = context;
         }
 
-        public decimal GetTotalExpenses()
+        public IEnumerable<Expense> GetAllExpenses()
         {
-            return _context.Expenses.Sum(e => e.Price);
+            return _context.Expenses.ToList();
         }
 
+        public Expense GetExpenseById(int id)
+        {
+            return _context.Expenses.Find(id);
+        }
+
+        public void AddExpense(Expense expense)
+        {
+            _context.Expenses.Add(expense);
+            _context.SaveChanges();
+        }
+
+        public void UpdateExpense(Expense expense)
+        {
+            _context.Expenses.Update(expense);
+            _context.SaveChanges();
+        }
+
+        public void DeleteExpense(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+            if (expense != null)
+            {
+                _context.Expenses.Remove(expense);
+                _context.SaveChanges();
+            }
+        }
+
+        // Implementacja brakujących metod
         public Dictionary<string, decimal> GetExpensesByCategory()
         {
             return _context.Expenses
-                .Include(e => e.Category)
-                .Where(e => e.Category != null) // Filtruj wydatki z przypisaną kategorią
-                .GroupBy(e => e.Category!.Name) // Użyj operatora !, aby potwierdzić, że Category nie jest null
+                .GroupBy(e => e.Category.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(e => e.Price));
         }
 
         public decimal GetAverageExpensesPerDay()
         {
-            var totalExpenses = GetTotalExpenses();
-            var days = (DateTime.Now - _context.Expenses.Min(e => e.DateAdded)).Days;
-            return days > 0 ? totalExpenses / days : 0;
+            var totalExpenses = _context.Expenses.Sum(e => e.Price);
+            var totalDays = _context.Expenses
+                .Select(e => e.DateAdded.Date)
+                .Distinct()
+                .Count();
+
+            return totalDays == 0 ? 0 : totalExpenses / totalDays;
         }
     }
 }

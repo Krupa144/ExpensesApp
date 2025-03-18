@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ExpensesApp.Models;
 using ExpensesApp.Repositories;
-using System;
-using System.Collections.Generic;
-using ExpensesApp.Models;
-using YourProjectNamespace.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ExpensesApp.Controllers
 {
@@ -18,26 +15,18 @@ namespace ExpensesApp.Controllers
 
         public IActionResult Index()
         {
-            try
-            {
-                var totalExpenses = _expenseRepository.GetTotalExpenses();
-                var expensesByCategory = _expenseRepository.GetExpensesByCategory();
-                var averageExpensesPerDay = _expenseRepository.GetAverageExpensesPerDay();
+            var totalExpenses = _expenseRepository.GetAllExpenses().Sum(e => e.Price);
+            var expensesByCategory = _expenseRepository.GetExpensesByCategory();
+            var averageExpensesPerDay = _expenseRepository.GetAverageExpensesPerDay();
 
-                var model = new StatisticsViewModel
-                {
-                    TotalExpenses = totalExpenses,
-                    ExpensesByCategory = expensesByCategory,
-                    AverageExpensesPerDay = averageExpensesPerDay
-                };
-
-                return View(model); // Zwróć widok z danymi
-            }
-            catch (Exception ex)
+            var viewModel = new StatisticsViewModel
             {
-                ViewBag.ErrorMessage = "Wystąpił błąd podczas pobierania statystyk: " + ex.Message;
-                return View("Error"); // Możesz utworzyć widok "Error" do wyświetlania błędów
-            }
+                TotalExpenses = totalExpenses,
+                ExpensesByCategory = expensesByCategory,
+                AverageExpensesPerDay = averageExpensesPerDay
+            };
+
+            return View(viewModel);
         }
     }
 }
