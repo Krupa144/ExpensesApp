@@ -1,26 +1,27 @@
+using ExpensesApp.Models;
+using ExpensesApp.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ExpansesApp.Controllers
+namespace ExpensesApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IExpenseRepository _expenseRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IExpenseRepository expenseRepository)
         {
-            _logger = logger;
+            _expenseRepository = expenseRepository;
         }
 
         public IActionResult Index()
         {
+            var expensesByCategory = _expenseRepository.GetExpensesByCategory;
+            var averageExpensesPerDay = _expenseRepository.GetAverageExpensesPerDay;
+
+            ViewBag.ExpensesByCategory = expensesByCategory;
+            ViewBag.AverageExpensesPerDay = averageExpensesPerDay;
+
             return View();
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-       
     }
 }
