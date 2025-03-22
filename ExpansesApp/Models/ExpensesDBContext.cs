@@ -15,11 +15,11 @@ namespace ExpensesApp.Models
         {
 
             modelBuilder.Entity<Expense>()
-           .HasOne(e => e.User) // Expense ma jednego użytkownika
-           .WithMany() // Użytkownik może mieć wiele wydatków
-           .HasForeignKey(e => e.UserId) // Klucz obcy to UserId
+           .HasOne(e => e.User) 
+           .WithMany() 
+           .HasForeignKey(e => e.UserId) 
            .OnDelete(DeleteBehavior.Cascade);
-                base.OnModelCreating(modelBuilder); // Ważne dla Identity
+                base.OnModelCreating(modelBuilder); 
 
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Category)

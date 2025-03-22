@@ -17,14 +17,13 @@ namespace ExpensesApp.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        public DateTime DateAdded { get; set; } = DateTime.UtcNow; // Ustaw domyślną wartość na bieżącą datę
+        public DateTime DateAdded { get; set; } = DateTime.UtcNow;
 
         public int CategoryId { get; set; }
 
         public Category? Category { get; set; }
 
-        // Relacja z użytkownikiem
-        public string UserId { get; set; } // Identyfikator użytkownika
-        public ApplicationUser User { get; set; } // Nawigacyjna właściwość do użytkownika
+        public string UserId { get; set; } 
+        public ApplicationUser User { get; set; } 
     }
 }

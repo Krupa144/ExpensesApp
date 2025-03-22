@@ -11,7 +11,6 @@ namespace ExpensesApp.Repositories
         void UpdateExpense(Expense expense);
         void DeleteExpense(int id);
 
-        // Dodaj brakujące metody
         Dictionary<string, decimal> GetExpensesByCategory();
         decimal GetAverageExpensesPerDay();
     }

@@ -45,7 +45,6 @@ namespace ExpensesApp.Repositories
             }
         }
 
-        // Implementacja brakujących metod
         public Dictionary<string, decimal> GetExpensesByCategory()
         {
             return _context.Expenses

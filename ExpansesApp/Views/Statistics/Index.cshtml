@@ -1,81 +1,126 @@
-﻿@model ExpensesApp.Models.StatisticsViewModel
+﻿<link rel="stylesheet" href="~/css/statistics.css" />
 
-@{
-    ViewData["Title"] = "Statistics";
-}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Expense Statistics</h2>
 
-@if (ViewBag.ErrorMessage != null)
-{
-    <div class="alert alert-danger">
-        @ViewBag.ErrorMessage
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <p class="card-text display-6">@Model.TotalExpenses.ToString("C", new System.Globalization.CultureInfo("pl-PL"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Average Daily Expenses</h5>
+                    <p class="card-text display-6">@Model.AverageExpensesPerDay.ToString("C", new System.Globalization.CultureInfo("pl-PL"))</p>
+                </div>
+            </div>
+        </div>
     </div>
-}
 
-<div class="row">
-    <div class="col-md-6">
-        <h3>Total Expenses</h3>
-        <p>@Model.TotalExpenses.ToString("C")</p>
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Expenses by Category</h5>
+                    <div id="chart-container">
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <h5>Average Daily Expenses</h5>
-        <p>@Model.AverageExpensesPerDay.ToString("C")</p>
-    </div>
-</div>
-
-<h5>Expenses by Category</h5>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Category</th>
-            <th>Total Expenses</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.ExpensesByCategory)
-        {
-            <tr>
-                <td>@item.Key</td>
-                <td>@item.Value.ToString("C")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-<div class="col-md-6">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Expenses by Category</h5>
-            <canvas id="expensesChart" width="400" height="150"></canvas>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Expenses Breakdown by Category</h5>
+                    <table class="table table-hover" id="expensesTable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th onclick="sortTable(0)">Category <i class="bi bi-arrow-down-up"></i></th>
+                                <th onclick="sortTable(1)">Total Expenses <i class="bi bi-arrow-down-up"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ExpensesByCategory)
+                            {
+                                <tr>
+                                    <td>@item.Key</td>
+                                    <td>@item.Value.ToString("C", new System.Globalization.CultureInfo("pl-PL"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-
-
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var ctx = document.getElementById('expensesChart').getContext('2d');
+
             var expensesChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(Model.ExpensesByCategory.Keys)), 
+                    labels: @Html.Raw(Json.Serialize(Model.ExpensesByCategory.Keys)),
                     datasets: [{
-                        label: 'Expenses by Category',
-                        data: @Html.Raw(Json.Serialize(Model.ExpensesByCategory.Values)), 
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        label: 'Wydatki',
+                        data: @Html.Raw(Json.Serialize(Model.ExpensesByCategory.Values)),
+                        backgroundColor: 'linear-gradient(135deg, #1a1a1a, #2c3e50)',
+                        borderColor: 'rgba(255, 255, 255, 0.8)',
                         borderWidth: 1
                     }]
                 },
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString("pl-PL") + " zł";
+                                }
+                            }
                         }
-                    }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.raw.toLocaleString("pl-PL") + " zł";
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
                 }
             });
         });
+
+        function sortTable(column) {
+            let table = document.getElementById("expensesTable");
+            let rows = Array.from(table.rows).slice(1);
+            let ascending = table.getAttribute("data-sort") === "asc";
+
+            rows.sort((rowA, rowB) => {
+                let cellA = rowA.cells[column].innerText.replace(" zł", "").replace(",", ".");
+                let cellB = rowB.cells[column].innerText.replace(" zł", "").replace(",", ".");
+                return ascending ? cellA - cellB : cellB - cellA;
+            });
+
+            rows.forEach(row => table.appendChild(row));
+            table.setAttribute("data-sort", ascending ? "desc" : "asc");
+        }
     </script>
 }
