@@ -13,7 +13,13 @@ namespace ExpensesApp.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // Ważne dla Identity
+
+            modelBuilder.Entity<Expense>()
+           .HasOne(e => e.User) // Expense ma jednego użytkownika
+           .WithMany() // Użytkownik może mieć wiele wydatków
+           .HasForeignKey(e => e.UserId) // Klucz obcy to UserId
+           .OnDelete(DeleteBehavior.Cascade);
+                base.OnModelCreating(modelBuilder); // Ważne dla Identity
 
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Category)

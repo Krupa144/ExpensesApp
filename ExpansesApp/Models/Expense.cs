@@ -22,5 +22,9 @@ namespace ExpensesApp.Models
         public int CategoryId { get; set; }
 
         public Category? Category { get; set; }
+
+        // Relacja z użytkownikiem
+        public string UserId { get; set; } // Identyfikator użytkownika
+        public ApplicationUser User { get; set; } // Nawigacyjna właściwość do użytkownika
     }
 }

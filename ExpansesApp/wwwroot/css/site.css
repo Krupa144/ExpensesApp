@@ -20,3 +20,66 @@ html {
 body {
   margin-bottom: 60px;
 }
+.text-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    max-width: 50%;
+    margin: auto;
+}
+
+.text-container {
+    background-color: #919090;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease-in-out;
+    text-align: center;
+    width: 100%;
+}
+
+.hidden {
+    opacity: 0;
+}
+
+p {
+    font-size: 20px;
+    margin: 0;
+}
+
+.nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+    .nav-button:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+.prev {
+    left: -50px;
+    margin-left: -20px;
+}
+
+.next {
+    right: -50px;
+    margin-right: -20px;
+}
+.container-xl {
+    margin-top:20px;
+    max-block-size: auto;
+    margin: auto;
+    background-color:black;
+}
