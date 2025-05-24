@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=dotnet,docker" sql />
+    <img src="https://skillicons.dev/icons?i=dotnet,docker,css,html" sql />
   </a>
 </p>
 
