@@ -1,25 +1,22 @@
-ExpensesApp is an application designed to track your expenses. It allows users to add, view, and manage their expenses. The app is built using C#, .NET, Entity Framework, SQL and is containerized with Docker.
+# 💸 ExpensesApp
 
-Features
-Create Expenses: Add a new expense with a description, amount, and category.
+**ExpensesApp** is a simple and efficient application designed to help you track and manage your daily expenses. With a clean interface and practical features, it's perfect for staying on top of your personal or business finances.
 
-View Expenses: View all recorded expenses.
+## 🚀 Features
 
-Expense Categories: Assign categories to your expenses.
+- **Create Expenses** – Add a new expense with a description, amount, and category.
+- **View Expenses** – See all your recorded expenses in one place.
+- **Expense Categories** – Organize your expenses by assigning them to categories.
 
-Technologies
-C# / .NET 
+## 🛠️ Technologies Used
 
-Entity Framework Core - ORM for database management
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=dotnet,docker, html, css"/>
+  </a>
+</p>
 
-Docker - To run the app in containers
 
-SQL Server - Database for storing app data
-
-Requirements
-Docker - To run the application in a container.
-
-.NET SDK - To run the application locally.
-
-SQL Server - The app uses a SQL Server database which will run in Docker.
+- **Entity Framework Core** – ORM for database interactions.
+- **SQL Server** – Relational database to store expense data.
 
